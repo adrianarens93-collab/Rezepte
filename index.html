@@ -1,0 +1,486 @@
+import React, { useState } from 'react';
+import { ChefHat, Utensils, Clock, Users, Moon, Star, X, ChevronRight, BookOpen, Heart } from 'lucide-react';
+
+const RecipeApp = () => {
+  const [activeEvent, setActiveEvent] = useState(0);
+  const [activeCourse, setActiveCourse] = useState('nachtisch'); // Default auf Nachtisch gesetzt, um die neuen Rezepte zu sehen
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+
+  // Datenstruktur für alle Abende und Rezepte
+  const events = [
+    {
+      id: 1,
+      title: "Arabische Nächte",
+      date: "Der erste Abend",
+      description: "Eine kulinarische Reise in den Orient mit Mezze, Gewürzen und süßen Träumen.",
+      themeColor: "from-indigo-900 via-purple-900 to-red-900",
+      accentColor: "text-amber-400",
+      menu: {
+        vorspeise: [
+          {
+            id: 'v1',
+            title: "Muhammara",
+            subtitle: "Gerösteter Paprika-Walnuss Dip",
+            image: "arabische_naechte/Paprika Walnuss Dip.jpg",
+            prepTime: "40 Min.",
+            servings: "4-6",
+            ingredients: [
+              "2 Paprika rot",
+              "1 libanesisches Brot oder Weißbrot/Semmelbrösel",
+              "50 g Walnüsse",
+              "20 ml Olivenöl (zzgl. zum Garnieren)",
+              "2 TL Granatapfel-Melasse",
+              "2 TL Tomatenmark",
+              "1 Chilipaste oder frische Chili/Pulver",
+              "1 TL Salz, 1/2 TL Pfeffer",
+              "1 Knoblauchzehe (optional)"
+            ],
+            steps: [
+              "Ofen auf 200 °C (O/U) oder 180°C (Umluft) vorheizen.",
+              "Paprika entkernen, vierteln und auf einem Blech (Haut nach oben) 20-25 Min. rösten, bis sie weich sind.",
+              "Walnüsse ohne Öl in der Pfanne 2-3 Min. rösten.",
+              "Paprika 10 Min. abgedeckt dämpfen lassen, dann Haut abziehen.",
+              "Brot, Paprika, Öl, Tomatenmark, Sirup, Gewürze im Mixer glatt pürieren.",
+              "Walnüsse zugeben und kurz grob untermixen.",
+              "2-3 Stunden kalt stellen und vor dem Servieren garnieren."
+            ]
+          },
+          {
+            id: 'v2',
+            title: "Petersiliensalat",
+            subtitle: "Tabouleh Art",
+            image: "arabische_naechte/Petersiliensalat.jpg",
+            prepTime: "30 Min.",
+            servings: "4",
+            ingredients: [
+              "2 große Bünde glatte Petersilie",
+              "3 kleine aromatische Tomaten",
+              "2 kleine Bauerngurken",
+              "2 Schalotten",
+              "2 EL feiner Bulgur (vorher in Wasser gequollen)",
+              "Saft von 2 Zitronen",
+              "3 EL Olivenöl",
+              "Salz, Pfeffer, gemahlener Koriander"
+            ],
+            steps: [
+              "Petersilie waschen, trocknen und sehr fein schneiden.",
+              "Tomaten, Gurken und Schalotten in sehr kleine Würfel schneiden.",
+              "Dressing aus Zitronensaft, Öl, Salz, Pfeffer und Koriander anrühren.",
+              "Gemüsewürfel und gequollenen Bulgur mit der Marinade vermengen.",
+              "Die Petersilie erst kurz vor dem Servieren unterheben, damit sie knackig bleibt."
+            ]
+          },
+          {
+            id: 'v3',
+            title: "Baba Ganoush",
+            subtitle: "Auberginencreme",
+            image: "arabische_naechte/Baba Ganoush.jpg",
+            prepTime: "60 Min.",
+            servings: "4",
+            ingredients: [
+              "2 mittelgroße Auberginen (ca. 500 ml)",
+              "2 EL Olivenöl Extra Nativ",
+              "1 kleine Knoblauchzehe",
+              "2 EL Tahin/Sesampaste",
+              "Saft von 1/2 Zitrone",
+              "1 TL Kreuzkümmel (Kumin)",
+              "1 EL geröstetes Sesamöl",
+              "Salz, Granatapfelkerne, Petersilie, Sesamkerne"
+            ],
+            steps: [
+              "Ofen auf Maximum (250°C) vorheizen. Auberginen einstechen und ca. 40-45 Min. grillen bis schwarz.",
+              "Auberginen 10 Min. abkühlen lassen, halbieren und Fruchtfleisch herauslöffeln.",
+              "Fruchtfleisch mit Knoblauch, Zitrone, Tahin, Gewürzen und Ölen mixen (30 Sek.).",
+              "Sesamkörner kurz in der Pfanne anrösten.",
+              "Auf Tellern verteilen und mit Granatapfelkernen, Petersilie, Sesam und Öl garnieren."
+            ]
+          },
+          {
+            id: 'v4',
+            title: "Joghurt-Minz Dip",
+            subtitle: "Orientalisch gewürzt",
+            image: "arabische_naechte/Orientalischer Joghurt-Minz Dip.jpg",
+            prepTime: "10 Min.",
+            servings: "4",
+            ingredients: [
+              "300 g griechischer Joghurt",
+              "2-3 Knoblauchzehen",
+              "3 Stängel Minze (nur Blätter)",
+              "1/2 TL Ras el Hanout",
+              "Eine Prise Salz"
+            ],
+            steps: [
+              "Minzblätter waschen und sehr fein hacken.",
+              "Knoblauch pressen oder fein hacken.",
+              "Joghurt mit Knoblauch, Minze und Ras el Hanout vermengen.",
+              "Mit Salz abschmecken.",
+              "Ca. 15 Minuten im Kühlschrank ziehen lassen."
+            ]
+          },
+          {
+            id: 'v5',
+            type: 'note',
+            title: "Dazu: Frisches Fladenbrot",
+            subtitle: "Der perfekte Begleiter",
+            description: "Zu all diesen köstlichen Dips und dem Salat wurde warmes, frisches Fladenbrot gereicht. Es dient nicht nur als Beilage, sondern ersetzt oft das Besteck.",
+            icon: "🥖"
+          }
+        ],
+        hauptgang: [
+          {
+            id: 'h1',
+            title: "Baharat-Hähnchen",
+            subtitle: "Hähnchenschenkel mit Zitronenjoghurt",
+            image: "arabische_naechte/Baharat Hähnchen.jpg",
+            prepTime: "90 Min.",
+            servings: "4",
+            ingredients: [
+              "8 Hähnchenschenkel",
+              "6 Knoblauchzehen",
+              "1,5 EL Baharat N°719",
+              "2 EL Olivenöl, 3 TL Honig",
+              "3 rote Zwiebeln, 1,5 Zitronen",
+              "Dip: 400g Griechischer Joghurt, Schale v. 2 Zitronen, Saft v. 1/2 Zitrone",
+              "Zum Garnieren: Petersilie, Minze"
+            ],
+            steps: [
+              "Knoblauch pressen und mit Salz, Baharat, Olivenöl und Honig zur Paste verrühren.",
+              "Hähnchen damit einreiben und mind. 30 Min. ziehen lassen. Ofen auf 200°C vorheizen.",
+              "Zwiebeln achteln, Zitronen in Spalten schneiden.",
+              "Alles in eine Form geben, etwas Öl und 200ml Wasser angießen. Mit Backpapier abdecken.",
+              "30 Min. mit Papier backen, dann Papier entfernen und weitere 30 Min. knusprig backen.",
+              "Joghurt mit Zitronenschale und Saft verrühren und zum Fleisch servieren."
+            ]
+          },
+          {
+            id: 'h2',
+            title: "Persischer Reis",
+            subtitle: "Mit Safran und Tahdig-Kruste",
+            image: "arabische_naechte/persischer Reis.jpg",
+            prepTime: "60 Min.",
+            servings: "4",
+            ingredients: [
+              "300 g Basmatireis",
+              "15 Safranfäden (in 100ml heißem Wasser gelöst)",
+              "80 g Datteln (in Ringen)",
+              "40 g Walnüsse/Mandeln (gehackt)",
+              "3 EL Naturjoghurt",
+              "3 EL Kokosöl",
+              "Salz, schwarzer Pfeffer"
+            ],
+            steps: [
+              "Reis waschen und 30 Min. in kaltem Wasser einweichen. Safran in kochendem Wasser ziehen lassen.",
+              "Reis in Salzwasser ca. 8 Min. al dente garen, dann abgießen.",
+              "Reis mit Safranwasser, Datteln, Nüssen, Salz und Pfeffer mischen.",
+              "500g der Mischung mit Joghurt verrühren. Kokosöl in Pfanne erhitzen und Joghurt-Reis am Boden verteilen.",
+              "Restlichen Reis bergförmig darauf geben (Rand frei lassen). Löcher in den Reisberg stechen.",
+              "15-20 Min. geschlossen braten, bis sich eine Kruste (Tahdig) bildet. Auf einen Teller stürzen."
+            ]
+          },
+          {
+            id: 'h3',
+            title: "Auberginengemüse",
+            subtitle: "Mit Kichererbsen & Tomaten",
+            image: "arabische_naechte/Auberginengemüse.jpg",
+            prepTime: "30 Min.",
+            servings: "4",
+            ingredients: [
+              "600 g Auberginen (gewürfelt)",
+              "100 g Zwiebeln (gewürfelt)",
+              "400 g stückige Tomaten",
+              "1 Glas Kichererbsen (240 g)",
+              "2 Zehen Knoblauch",
+              "½ Bund Minze, ½ Bund Koriander",
+              "2 EL Zitronensaft, 3 EL Olivenöl",
+              "Gewürze: Kreuzkümmel, Kardamom, Salz, Pfeffer"
+            ],
+            steps: [
+              "Zwiebeln und Auberginen in Olivenöl ca. 5 Min. kräftig anbraten.",
+              "Tomaten und Kichererbsen zufügen, aufkochen und 5 Min. köcheln lassen.",
+              "Knoblauch pressen und dazugeben, weitere 10 Min. köcheln.",
+              "Mit Gewürzen und Zitronensaft abschmecken.",
+              "Gehackte Kräuter unterheben und servieren."
+            ]
+          },
+          {
+            id: 'h4',
+            title: "Zitronen-Joghurt-Dip",
+            subtitle: "Extra frisch",
+            image: "arabische_naechte/Frischer Zitronen-Joghurt-Dip.jpg",
+            prepTime: "10 Min.",
+            servings: "4",
+            ingredients: [
+              "400 g Griechischer Joghurt",
+              "Schale von 2 Bio-Zitronen",
+              "Saft von 1/2 Zitrone",
+              "Eine Prise Salz",
+              "Optional: Prise Zucker oder Honig"
+            ],
+            steps: [
+              "Zitronen heiß waschen und Schale fein abreiben (nur das Gelbe).",
+              "Saft einer Hälfte auspressen.",
+              "Joghurt mit Abrieb, Saft und Salz verrühren.",
+              "Abschmecken und bei Bedarf mit etwas Süße die Säure ausbalancieren."
+            ]
+          }
+        ],
+        nachtisch: [
+          {
+            id: 'n1',
+            title: "Baklava",
+            subtitle: "Mit Walnüssen und Sirup",
+            image: "arabische_naechte/Baklava Rezept.jpg",
+            prepTime: "60 Min.",
+            servings: "1 Blech",
+            ingredients: [
+              "400-470 g Filo-/Baklavateig",
+              "230 g Butter (geschmolzen)",
+              "200 g Walnüsse (gemahlen)",
+              "1 TL Zimt",
+              "Sirup: 200 g Zucker, 300 ml Wasser, Spritzer Zitronensaft"
+            ],
+            steps: [
+              "Walnüsse mahlen und mit Zimt mischen. Teig zuschneiden.",
+              "Form buttern. Immer 2 Teigblätter legen, dann mit Butter bestreichen. Wiederholen bis Hälfte des Teigs verbraucht ist.",
+              "Nussfüllung gleichmäßig verteilen.",
+              "Restliche Teigblätter schichten (2 Blätter, Butter...), Abschluss mit Butter/Ghee.",
+              "In Rauten schneiden (nur obere Schichten einschneiden).",
+              "Bei 150°C (O/U) ca. 40-45 Min. goldbraun backen.",
+              "Sirup 1 Min. sprudelnd kochen, lauwarm über das heiße Baklava gießen."
+            ]
+          },
+          {
+            id: 'n2',
+            title: "Hariseh",
+            subtitle: "Arabischer Grießkuchen",
+            image: "arabische_naechte/Grieskuchen.jpeg",
+            prepTime: "45 Min.",
+            servings: "1 Form",
+            ingredients: [
+              "350 g Hartweizengrieß",
+              "130 g Butter (geschmolzen), 70 g Zucker",
+              "300 g Joghurt",
+              "1 Pck Backpulver, 80 g Kokosraspeln",
+              "Mandeln zum Verzieren, Tahini für die Form",
+              "Sirup: 200g Zucker, 300ml Wasser, 2 EL Orangenblütenwasser, Zitronensaft"
+            ],
+            steps: [
+              "Ofen auf 180°C vorheizen, Form mit Tahini bestreichen.",
+              "Trockene Zutaten mischen. Joghurt und geschmolzene Butter unterrühren.",
+              "Teig in Form glatt streichen, Muster einritzen und mit Mandeln belegen.",
+              "Ca. 35 Min. backen.",
+              "Sirup 10 Min. köcheln bis leicht dickflüssig, Orangenblütenwasser zufügen.",
+              "Lauwarmen Sirup über den heißen Kuchen gießen und ziehen lassen."
+            ]
+          }
+        ]
+      }
+    }
+  ];
+
+  const currentEvent = events[activeEvent];
+  const recipes = currentEvent.menu[activeCourse];
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+      
+      {/* Hero Header */}
+      <header className={`relative text-white py-16 px-6 shadow-xl bg-gradient-to-r ${currentEvent.themeColor}`}>
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
+           <Star className="absolute top-10 left-10 w-8 h-8 animate-pulse" />
+           <Star className="absolute top-20 right-20 w-6 h-6 animate-pulse delay-75" />
+           <Moon className="absolute bottom-10 right-10 w-16 h-16 opacity-50" />
+        </div>
+        
+        <div className="max-w-5xl mx-auto relative z-10 text-center">
+          <div className="flex justify-center items-center gap-3 mb-4">
+            <ChefHat className="w-10 h-10 text-amber-400" />
+            <span className="uppercase tracking-widest text-sm font-semibold text-amber-200">Unsere Kochrunde</span>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-serif font-bold mb-4 tracking-tight drop-shadow-md">
+            {currentEvent.title}
+          </h1>
+          <p className="text-xl opacity-90 font-light max-w-2xl mx-auto">
+            {currentEvent.description}
+          </p>
+        </div>
+      </header>
+
+      {/* Navigation Bars */}
+      <div className="bg-white shadow-sm sticky top-0 z-30">
+        <div className="max-w-5xl mx-auto px-4">
+          {/* Course Selector */}
+          <div className="flex justify-center space-x-8 py-4 overflow-x-auto">
+            {['vorspeise', 'hauptgang', 'nachtisch'].map((course) => (
+              <button
+                key={course}
+                onClick={() => setActiveCourse(course)}
+                className={`flex items-center gap-2 pb-2 text-lg font-medium transition-all border-b-2 px-2 capitalize
+                  ${activeCourse === course 
+                    ? `border-amber-600 text-amber-700` 
+                    : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+              >
+                {course === 'vorspeise' && <Utensils size={18}/>}
+                {course === 'hauptgang' && <Users size={18}/>}
+                {course === 'nachtisch' && <Heart size={18}/>}
+                {course}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <main className="max-w-6xl mx-auto p-6 min-h-[600px]">
+        
+        {recipes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {recipes.map((recipe) => (
+              recipe.type === 'note' ? (
+                // Note Card (Fladenbrot)
+                <div key={recipe.id} className="bg-amber-50 border border-amber-100 rounded-2xl p-8 flex flex-col justify-center items-center text-center shadow-sm hover:shadow-md transition-shadow">
+                  <div className="text-5xl mb-4">{recipe.icon}</div>
+                  <h3 className="text-2xl font-serif font-bold text-amber-900 mb-2">{recipe.title}</h3>
+                  <p className="text-amber-800/80 italic leading-relaxed">{recipe.description}</p>
+                </div>
+              ) : (
+                // Recipe Card
+                <div 
+                  key={recipe.id} 
+                  onClick={() => setSelectedRecipe(recipe)}
+                  className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer group transform transition-all hover:-translate-y-1 hover:shadow-xl"
+                >
+                  <div className="h-56 overflow-hidden relative bg-gray-200">
+                    <img 
+                      src={recipe.image} 
+                      alt={recipe.title} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://placehold.co/600x400/e2e8f0/475569?text=Bild+fehlt";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80" />
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <h3 className="text-xl font-bold font-serif">{recipe.title}</h3>
+                      <p className="text-sm opacity-90">{recipe.subtitle}</p>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex justify-between items-center text-sm text-slate-500 mb-4">
+                      <div className="flex items-center gap-1">
+                        <Clock size={16} /> {recipe.prepTime}
+                      </div>
+                       <div className="flex items-center gap-1">
+                        <Users size={16} /> {recipe.servings}
+                      </div>
+                    </div>
+                    <button className="w-full py-2 bg-slate-100 text-slate-700 font-medium rounded-lg group-hover:bg-amber-50 group-hover:text-amber-700 transition-colors flex items-center justify-center gap-2">
+                      <BookOpen size={16} /> Rezept ansehen
+                    </button>
+                  </div>
+                </div>
+              )
+            ))}
+          </div>
+        ) : (
+          // Empty State
+          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+            <div className="bg-slate-100 p-6 rounded-full mb-4">
+              <Utensils size={48} className="opacity-50" />
+            </div>
+            <h3 className="text-xl font-medium mb-2">Noch keine Rezepte</h3>
+            <p>Die Rezepte für {activeCourse} folgen bald...</p>
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-slate-400 py-10 text-center">
+        <p className="font-serif italic text-lg mb-2">"Essen ist ein Bedürfnis, Genießen ist eine Kunst."</p>
+        <div className="flex justify-center gap-2 text-sm opacity-60">
+          <span>&copy; {new Date().getFullYear()} Unsere Kochrunde</span>
+          <span>•</span>
+          <span>Arabische Nächte</span>
+        </div>
+      </footer>
+
+      {/* Recipe Modal */}
+      {selectedRecipe && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedRecipe(null)}>
+          <div 
+            className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in duration-300"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header Image */}
+            <div className="relative h-64 md:h-80">
+              <img 
+                src={selectedRecipe.image} 
+                alt={selectedRecipe.title} 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "https://placehold.co/800x400/e2e8f0/475569?text=Bild+fehlt";
+                }}
+              />
+              <button 
+                onClick={() => setSelectedRecipe(null)}
+                className="absolute top-4 right-4 bg-white/90 p-2 rounded-full hover:bg-white text-slate-800 transition-colors shadow-lg"
+              >
+                <X size={24} />
+              </button>
+              <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent p-8 text-white">
+                <h2 className="text-4xl font-serif font-bold mb-1">{selectedRecipe.title}</h2>
+                <p className="text-lg opacity-90">{selectedRecipe.subtitle}</p>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-8 md:p-10 grid md:grid-cols-[1fr_1.5fr] gap-10">
+              
+              {/* Ingredients */}
+              <div className="space-y-6">
+                <div className="bg-amber-50/50 p-6 rounded-2xl border border-amber-100">
+                  <h3 className="text-xl font-serif font-bold text-amber-900 mb-4 flex items-center gap-2">
+                    <Utensils size={20} /> Zutaten
+                  </h3>
+                  <ul className="space-y-3">
+                    {selectedRecipe.ingredients.map((ing, i) => (
+                      <li key={i} className="flex items-start gap-3 text-slate-700 leading-snug">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-2 shrink-0" />
+                        <span>{ing}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Steps */}
+              <div>
+                <h3 className="text-xl font-serif font-bold text-slate-800 mb-6 flex items-center gap-2">
+                  <ChefHat size={20} className="text-amber-600" /> Zubereitung
+                </h3>
+                <div className="space-y-8">
+                  {selectedRecipe.steps.map((step, i) => (
+                    <div key={i} className="flex gap-4 group">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                        {i + 1}
+                      </div>
+                      <p className="text-slate-600 leading-relaxed pt-1 border-b border-slate-100 pb-6 w-full group-last:border-0 group-last:pb-0">
+                        {step}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+export default RecipeApp;
