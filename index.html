@@ -5,479 +5,807 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arabische Nächte Rezepte</title>
     
-    <!-- React und ReactDOM laden (damit der Code läuft) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel (übersetzt den Code für den Browser) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Ein bisschen CSS für Animationen -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+
     <style>
-        body { margin: 0; padding: 0; background-color: #f8fafc; font-family: sans-serif; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        /* --- GRUNDLAGEN & FARBEN --- */
+        :root {
+            --color-primary: #1e1b4b; /* Sehr dunkles Indigo */
+            --color-accent: #d97706;  /* Gold/Amber */
+            --color-accent-light: #fbbf24;
+            --color-bg: #fdfbf7;      /* Warmes Papierweiß */
+            --color-text: #334155;
+            --color-text-serif: #4a0404; /* Dunkles Rotbraun */
+            --font-serif: 'Amiri', serif;
+            --font-sans: 'Raleway', sans-serif;
+        }
+
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: var(--color-bg); 
+            font-family: var(--font-sans);
+            color: var(--color-text);
+            /* Ein subtiles geometrisches Muster im Hintergrund */
+            background-image: 
+                radial-gradient(var(--color-accent) 0.5px, transparent 0.5px), 
+                radial-gradient(var(--color-accent) 0.5px, var(--color-bg) 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            background-attachment: fixed; 
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(135deg, #312e81 0%, #581c87 50%, #7f1d1d 100%);
+            color: white;
+            padding: 4rem 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border-bottom: 4px solid var(--color-accent);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--color-accent-light);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid var(--color-accent);
+            padding: 0.25rem 1rem;
+            border-radius: 99px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            margin: 0.5rem 0;
+            line-height: 1.1;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .description {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+            font-style: italic;
+        }
+
+        /* --- NAVIGATION --- */
+        .nav-bar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 0 1rem;
+            overflow-x: auto; /* Scrollbar auf sehr kleinen Handys */
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover { color: var(--color-accent); }
+        .nav-btn.active {
+            color: var(--color-text-serif);
+            border-bottom-color: var(--color-accent);
+            background: linear-gradient(to top, rgba(217, 119, 6, 0.05), transparent);
+        }
+
+        /* --- GRID & CARDS --- */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            min-height: 60vh;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        /* Orientalischer Rahmen-Effekt */
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border: 1px solid var(--color-accent);
+            border-radius: 8px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            border-color: var(--color-accent);
+        }
+        
+        .card:hover::after { opacity: 0.6; }
+
+        .card-img-wrapper {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+
+        .card:hover .card-img { transform: scale(1.05); }
+
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            color: var(--color-text-serif);
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .btn-view {
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--color-primary);
+            color: var(--color-accent-light);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        .btn-view:hover { background-color: #312e81; }
+
+        /* Notiz-Karte (für Brot etc.) */
+        .note-card {
+            background-color: #fffbeb;
+            border: 2px dashed var(--color-accent);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            color: #78350f;
+        }
+        .note-card::after { display: none; } /* Kein doppelter Rahmen hier */
+
+        /* --- MODAL (Overlay) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(15, 23, 42, 0.85); /* Dunklerer Hintergrund */
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-header-img {
+            height: 300px;
+            width: 100%;
+            object-fit: cover;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 20;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
+        }
+        .close-btn:hover { transform: rotate(90deg); color: var(--color-accent); }
+
+        .modal-content {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr; /* Links Zutaten, Rechts Zubereitung */
+            gap: 3rem;
+        }
+
+        .ingredients-box {
+            background: #fffbeb;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #fcd34d;
+        }
+
+        .modal h2 {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            color: var(--color-text-serif);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .step-num {
+            flex-shrink: 0;
+            width: 32px; height: 32px;
+            background: var(--color-primary);
+            color: var(--color-accent-light);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+            font-family: var(--font-serif);
+        }
+        .step-text {
+            line-height: 1.6;
+            margin: 0;
+            padding-top: 2px;
+        }
+
+        /* --- ANIMATIONEN --- */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } }
+
+        /* --- RESPONSIVE MEDIA QUERIES --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.25rem; }
+            .header-content { padding: 0 1rem; }
+            
+            /* Modal auf Handy untereinander statt nebeneinander */
+            .modal-content {
+                display: flex;
+                flex-direction: column;
+                gap: 2rem;
+                padding: 1.5rem;
+            }
+            .modal-header-img { height: 200px; }
+            
+            /* Zutatenbox volle Breite */
+            .ingredients-box { width: auto; }
+        }
+
+        @media (max-width: 480px) {
+            .nav-btn { font-size: 1rem; padding: 0.75rem 1rem; }
+            .recipe-grid { grid-template-columns: 1fr; } /* 1 Spalte auf Handy */
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
-    <!-- Hier beginnt der eigentliche Programm-Code -->
     <script type="text/babel">
         const { useState } = React;
 
-        // --- ICONS ---
-        const ChefHat = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" y1="17" x2="18" y2="17"/></svg>;
-        const Utensils = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>;
-        const Clock = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
-        const Users = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
-        const Moon = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>;
-        const Star = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
-        const X = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
-        const BookOpen = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
-        const Heart = (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>;
-
-        // --- STYLES ---
-        const styles = {
-          container: { fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", backgroundColor: '#f8fafc', minHeight: '100vh', color: '#334155' },
-          header: { background: 'linear-gradient(to right, #312e81, #581c87, #7f1d1d)', color: 'white', padding: '4rem 1.5rem', position: 'relative', textAlign: 'center', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' },
-          headerContent: { position: 'relative', zIndex: 10, maxWidth: '1024px', margin: '0 auto' },
-          badge: { display: 'inline-flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: '#fde68a', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.875rem', fontWeight: '600' },
-          title: { fontSize: '3.75rem', fontWeight: '700', marginBottom: '1rem', fontFamily: 'serif', lineHeight: 1.1, textShadow: '0 2px 4px rgba(0,0,0,0.3)' },
-          description: { fontSize: '1.25rem', opacity: 0.9, fontWeight: 300, maxWidth: '42rem', margin: '0 auto' },
-          navBar: { backgroundColor: 'white', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)', position: 'sticky', top: 0, zIndex: 30 },
-          navContainer: { maxWidth: '1024px', margin: '0 auto', padding: '0 1rem', display: 'flex', justifyContent: 'center', overflowX: 'auto' },
-          navButton: (active) => ({ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 1.5rem', fontSize: '1.125rem', fontWeight: 500, border: 'none', backgroundColor: 'transparent', cursor: 'pointer', color: active ? '#b45309' : '#64748b', borderBottom: active ? '3px solid #d97706' : '3px solid transparent', transition: 'all 0.2s', textTransform: 'capitalize' }),
-          main: { maxWidth: '1152px', margin: '0 auto', padding: '2rem 1.5rem', minHeight: '600px' },
-          responsiveGrid: { display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'center' },
-          card: { backgroundColor: 'white', borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '350px', transition: 'transform 0.2s' },
-          cardImageContainer: { height: '14rem', position: 'relative', backgroundColor: '#e2e8f0', overflow: 'hidden' },
-          cardImage: { width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' },
-          cardOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)', padding: '1.25rem', color: 'white' },
-          cardTitle: { fontSize: '1.25rem', fontWeight: 'bold', fontFamily: 'serif', margin: 0 },
-          cardSubtitle: { fontSize: '0.875rem', opacity: 0.9, margin: 0 },
-          cardContent: { padding: '1.25rem', flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' },
-          cardMeta: { display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' },
-          metaItem: { display: 'flex', alignItems: 'center', gap: '0.25rem' },
-          button: { width: '100%', padding: '0.75rem', backgroundColor: '#f1f5f9', color: '#334155', border: 'none', borderRadius: '0.5rem', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'background-color 0.2s' },
-          noteCard: { backgroundColor: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '1rem', padding: '2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#78350f' },
-          footer: { backgroundColor: '#0f172a', color: '#94a3b8', padding: '3rem 1rem', textAlign: 'center', marginTop: 'auto' },
-          modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(4px)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' },
-          modal: { backgroundColor: 'white', borderRadius: '1.5rem', width: '100%', maxWidth: '56rem', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', position: 'relative', animation: 'zoomIn 0.3s ease-out' },
-          modalHeaderImage: { height: '20rem', width: '100%', position: 'relative' },
-          closeButton: { position: 'absolute', top: '1rem', right: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.9)', border: 'none', borderRadius: '50%', padding: '0.5rem', cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', zIndex: 20 },
-          modalBody: { padding: '2.5rem', display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '2.5rem' },
-          ingredientsBox: { backgroundColor: 'rgba(255, 251, 235, 0.5)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid #fef3c7' },
-          stepItem: { display: 'flex', gap: '1rem', marginBottom: '1.5rem' },
-          stepNumber: { flexShrink: 0, width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: '#f1f5f9', color: '#64748b', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-          stepText: { lineHeight: 1.6, color: '#475569', paddingTop: '0.25rem' }
+        // --- ICONS (SVG) ---
+        const Icons = {
+            ChefHat: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" y1="17" x2="18" y2="17"/></svg>,
+            Utensils: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>,
+            Clock: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+            Users: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            Moon: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>,
+            Star: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+            X: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
+            BookOpen: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
+            Heart: (p) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
         };
 
         const RecipeApp = () => {
-          const [activeEvent, setActiveEvent] = useState(0);
-          const [activeCourse, setActiveCourse] = useState('nachtisch');
-          const [selectedRecipe, setSelectedRecipe] = useState(null);
+            // Hier wurde 'nachtisch' zu 'vorspeise' geändert
+            const [activeCourse, setActiveCourse] = useState('vorspeise');
+            const [selectedRecipe, setSelectedRecipe] = useState(null);
 
-          const events = [
-            {
-              id: 1,
-              title: "Arabische Nächte",
-              date: "Der erste Abend",
-              description: "Eine kulinarische Reise in den Orient mit Mezze, Gewürzen und süßen Träumen.",
-              themeColor: "from-indigo-900 via-purple-900 to-red-900",
-              accentColor: "text-amber-400",
-              menu: {
+            // --- DATA (Wieder die Original-Texte) ---
+            const recipesData = {
                 vorspeise: [
-                  {
-                    id: 'v1',
-                    title: "Muhammara",
-                    subtitle: "Gerösteter Paprika-Walnuss Dip",
-                    image: "arabische_naechte/Paprika Walnuss Dip.jpg",
-                    prepTime: "40 Min.",
-                    servings: "4-6",
-                    ingredients: [
-                      "2 Paprika rot",
-                      "1 libanesisches Brot oder Weißbrot/Semmelbrösel",
-                      "50 g Walnüsse",
-                      "20 ml Olivenöl (zzgl. zum Garnieren)",
-                      "2 TL Granatapfel-Melasse",
-                      "2 TL Tomatenmark",
-                      "1 Chilipaste oder frische Chili/Pulver",
-                      "1 TL Salz, 1/2 TL Pfeffer",
-                      "1 Knoblauchzehe (optional)"
-                    ],
-                    steps: [
-                      "Ofen auf 200 °C (O/U) oder 180°C (Umluft) vorheizen.",
-                      "Paprika entkernen, vierteln und auf einem Blech (Haut nach oben) 20-25 Min. rösten, bis sie weich sind.",
-                      "Walnüsse ohne Öl in der Pfanne 2-3 Min. rösten.",
-                      "Paprika 10 Min. abgedeckt dämpfen lassen, dann Haut abziehen.",
-                      "Brot, Paprika, Öl, Tomatenmark, Sirup, Gewürze im Mixer glatt pürieren.",
-                      "Walnüsse zugeben und kurz grob untermixen.",
-                      "2-3 Stunden kalt stellen und vor dem Servieren garnieren."
-                    ]
-                  },
-                  {
-                    id: 'v2',
-                    title: "Petersiliensalat",
-                    subtitle: "Tabouleh Art",
-                    image: "arabische_naechte/Petersiliensalat.jpg",
-                    prepTime: "30 Min.",
-                    servings: "4",
-                    ingredients: [
-                      "2 große Bünde glatte Petersilie",
-                      "3 kleine aromatische Tomaten",
-                      "2 kleine Bauerngurken",
-                      "2 Schalotten",
-                      "2 EL feiner Bulgur (vorher in Wasser gequollen)",
-                      "Saft von 2 Zitronen",
-                      "3 EL Olivenöl",
-                      "Salz, Pfeffer, gemahlener Koriander"
-                    ],
-                    steps: [
-                      "Petersilie waschen, trocknen und sehr fein schneiden.",
-                      "Tomaten, Gurken und Schalotten in sehr kleine Würfel schneiden.",
-                      "Dressing aus Zitronensaft, Öl, Salz, Pfeffer und Koriander anrühren.",
-                      "Gemüsewürfel und gequollenen Bulgur mit der Marinade vermengen.",
-                      "Die Petersilie erst kurz vor dem Servieren unterheben, damit sie knackig bleibt."
-                    ]
-                  },
-                  {
-                    id: 'v3',
-                    title: "Baba Ganoush",
-                    subtitle: "Auberginencreme",
-                    image: "arabische_naechte/Baba Ganoush.jpg",
-                    prepTime: "60 Min.",
-                    servings: "4",
-                    ingredients: [
-                      "2 mittelgroße Auberginen (ca. 500 ml)",
-                      "2 EL Olivenöl Extra Nativ",
-                      "1 kleine Knoblauchzehe",
-                      "2 EL Tahin/Sesampaste",
-                      "Saft von 1/2 Zitrone",
-                      "1 TL Kreuzkümmel (Kumin)",
-                      "1 EL geröstetes Sesamöl",
-                      "Salz, Granatapfelkerne, Petersilie, Sesamkerne"
-                    ],
-                    steps: [
-                      "Ofen auf Maximum (250°C) vorheizen. Auberginen einstechen und ca. 40-45 Min. grillen bis schwarz.",
-                      "Auberginen 10 Min. abkühlen lassen, halbieren und Fruchtfleisch herauslöffeln.",
-                      "Fruchtfleisch mit Knoblauch, Zitrone, Tahin, Gewürzen und Ölen mixen (30 Sek.).",
-                      "Sesamkörner kurz in der Pfanne anrösten.",
-                      "Auf Tellern verteilen und mit Granatapfelkernen, Petersilie, Sesam und Öl garnieren."
-                    ]
-                  },
-                  {
-                    id: 'v4',
-                    title: "Joghurt-Minz Dip",
-                    subtitle: "Orientalisch gewürzt",
-                    image: "arabische_naechte/Orientalischer Joghurt-Minz Dip.jpg",
-                    prepTime: "10 Min.",
-                    servings: "4",
-                    ingredients: [
-                      "300 g griechischer Joghurt",
-                      "2-3 Knoblauchzehen",
-                      "3 Stängel Minze (nur Blätter)",
-                      "1/2 TL Ras el Hanout",
-                      "Eine Prise Salz"
-                    ],
-                    steps: [
-                      "Minzblätter waschen und sehr fein hacken.",
-                      "Knoblauch pressen oder fein hacken.",
-                      "Joghurt mit Knoblauch, Minze und Ras el Hanout vermengen.",
-                      "Mit Salz abschmecken.",
-                      "Ca. 15 Minuten im Kühlschrank ziehen lassen."
-                    ]
-                  },
-                  {
-                    id: 'v5',
-                    type: 'note',
-                    title: "Dazu: Frisches Fladenbrot",
-                    subtitle: "Der perfekte Begleiter",
-                    description: "Zu all diesen köstlichen Dips und dem Salat wurde warmes, frisches Fladenbrot gereicht. Es dient nicht nur als Beilage, sondern ersetzt oft das Besteck.",
-                    icon: "🥖"
-                  }
+                    {
+                        id: 'v1',
+                        title: "Muhammara",
+                        subtitle: "Gerösteter Paprika-Walnuss Dip",
+                        image: "arabische_naechte/Paprika Walnuss Dip.jpg",
+                        prepTime: "40 Min.",
+                        servings: "4-6",
+                        ingredients: [
+                            "2 Paprika rot",
+                            "1 libanesisches Brot oder Weißbrot/Semmelbrösel",
+                            "50 g Walnüsse",
+                            "20 ml Olivenöl (zzgl. zum Garnieren)",
+                            "2 TL Granatapfel-Melasse",
+                            "2 TL Tomatenmark",
+                            "1 Chilipaste oder frische Chili/Pulver",
+                            "1 TL Salz, 1/2 TL Pfeffer",
+                            "1 Knoblauchzehe (optional)"
+                        ],
+                        steps: [
+                            "Ofen auf 200 °C (O/U) oder 180°C (Umluft) vorheizen.",
+                            "Paprika entkernen, vierteln und auf einem Blech (Haut nach oben) 20-25 Min. rösten, bis sie weich sind.",
+                            "Walnüsse ohne Öl in der Pfanne 2-3 Min. rösten.",
+                            "Paprika 10 Min. abgedeckt dämpfen lassen, dann Haut abziehen.",
+                            "Brot, Paprika, Öl, Tomatenmark, Sirup, Gewürze im Mixer glatt pürieren.",
+                            "Walnüsse zugeben und kurz grob untermixen.",
+                            "2-3 Stunden kalt stellen und vor dem Servieren garnieren."
+                        ]
+                    },
+                    {
+                        id: 'v2',
+                        title: "Petersiliensalat",
+                        subtitle: "Tabouleh Art",
+                        image: "arabische_naechte/Petersiliensalat.jpg",
+                        prepTime: "30 Min.",
+                        servings: "6-8",
+                        ingredients: [
+                            "2 große Bünde glatte Petersilie",
+                            "3 kleine aromatische Tomaten",
+                            "2 kleine Bauerngurken",
+                            "2 Schalotten",
+                            "2 EL feiner Bulgur (vorher in Wasser gequollen)",
+                            "Saft von 2 Zitronen",
+                            "3 EL Olivenöl",
+                            "Salz, Pfeffer, gemahlener Koriander"
+                        ],
+                        steps: [
+                            "Petersilie waschen, trocknen und sehr fein schneiden.",
+                            "Tomaten, Gurken und Schalotten in sehr kleine Würfel schneiden.",
+                            "Dressing aus Zitronensaft, Öl, Salz, Pfeffer und Koriander anrühren.",
+                            "Gemüsewürfel und gequollenen Bulgur mit der Marinade vermengen.",
+                            "Die Petersilie erst kurz vor dem Servieren unterheben, damit sie knackig bleibt."
+                        ]
+                    },
+                    {
+                        id: 'v3',
+                        title: "Baba Ganoush",
+                        subtitle: "Auberginencreme",
+                        image: "arabische_naechte/Baba Ganoush.jpg",
+                        prepTime: "60 Min.",
+                        servings: "4",
+                        ingredients: [
+                            "2 mittelgroße Auberginen (ca. 500 g)",
+                            "2 EL Olivenöl Extra Nativ",
+                            "1 kleine Knoblauchzehe",
+                            "2 EL Tahin/Sesampaste",
+                            "Saft von 1/2 Zitrone",
+                            "1 TL Kreuzkümmel (Kumin)",
+                            "1 EL geröstetes Sesamöl",
+                            "Salz, Granatapfelkerne, Petersilie, Sesamkerne"
+                        ],
+                        steps: [
+                            "Ofen auf Maximum (250°C) vorheizen. Auberginen einstechen und ca. 40-45 Min. grillen bis schwarz sind.",
+                            "Auberginen 10 Min. abkühlen lassen, halbieren und Fruchtfleisch herauslöffeln.",
+                            "Fruchtfleisch mit Knoblauch, Zitrone, Tahin, Gewürzen und Ölen mixen (30 Sek.).",
+                            "Sesamkörner kurz in der Pfanne anrösten.",
+                            "Auf Tellern verteilen und mit Granatapfelkernen, Petersilie, Sesam und Öl garnieren."
+                        ]
+                    },
+                    {
+                        id: 'v4',
+                        title: "Joghurt-Minz Dip",
+                        subtitle: "Orientalisch gewürzt",
+                        image: "arabische_naechte/Orientalischer Joghurt-Minz Dip.jpg",
+                        prepTime: "10 Min.",
+                        servings: "4",
+                        ingredients: [
+                            "300 g griechischer Joghurt",
+                            "2-3 Knoblauchzehen",
+                            "3 Stängel Minze (nur Blätter)",
+                            "1/2 TL Ras el Hanout",
+                            "Eine Prise Salz"
+                        ],
+                        steps: [
+                            "Minzblätter waschen und sehr fein hacken.",
+                            "Knoblauch pressen oder fein hacken.",
+                            "Joghurt mit Knoblauch, Minze und Ras el Hanout vermengen.",
+                            "Mit Salz abschmecken.",
+                            "Ca. 15 Minuten im Kühlschrank ziehen lassen."
+                        ]
+                    },
+                    {
+                        id: 'v5',
+                        type: 'note',
+                        title: "Dazu: Frisches Fladenbrot",
+                        subtitle: "Der perfekte Begleiter",
+                        description: "Zu all diesen köstlichen Dips und dem Salat wurde warmes, frisches Fladenbrot gereicht. Es dient nicht nur als Beilage, sondern ersetzt oft das Besteck.",
+                        icon: "🥖"
+                    }
                 ],
                 hauptgang: [
-                  {
-                    id: 'h1',
-                    title: "Baharat-Hähnchen",
-                    subtitle: "Hähnchenschenkel mit Zitronenjoghurt",
-                    image: "arabische_naechte/Baharat Hähnchen.jpg",
-                    prepTime: "90 Min.",
-                    servings: "4",
-                    ingredients: [
-                      "8 Hähnchenschenkel",
-                      "6 Knoblauchzehen",
-                      "1,5 EL Baharat N°719",
-                      "2 EL Olivenöl, 3 TL Honig",
-                      "3 rote Zwiebeln, 1,5 Zitronen",
-                      "Dip: 400g Griechischer Joghurt, Schale v. 2 Zitronen, Saft v. 1/2 Zitrone",
-                      "Zum Garnieren: Petersilie, Minze"
-                    ],
-                    steps: [
-                      "Knoblauch pressen und mit Salz, Baharat, Olivenöl und Honig zur Paste verrühren.",
-                      "Hähnchen damit einreiben und mind. 30 Min. ziehen lassen. Ofen auf 200°C vorheizen.",
-                      "Zwiebeln achteln, Zitronen in Spalten schneiden.",
-                      "Alles in eine Form geben, etwas Öl und 200ml Wasser angießen. Mit Backpapier abdecken.",
-                      "30 Min. mit Papier backen, dann Papier entfernen und weitere 30 Min. knusprig backen.",
-                      "Joghurt mit Zitronenschale und Saft verrühren und zum Fleisch servieren."
-                    ]
-                  },
-                  {
-                    id: 'h2',
-                    title: "Persischer Reis",
-                    subtitle: "Mit Safran und Tahdig-Kruste",
-                    image: "arabische_naechte/persischer Reis.jpg",
-                    prepTime: "60 Min.",
-                    servings: "4",
-                    ingredients: [
-                      "300 g Basmatireis",
-                      "15 Safranfäden (in 100ml heißem Wasser gelöst)",
-                      "80 g Datteln (in Ringen)",
-                      "40 g Walnüsse/Mandeln (gehackt)",
-                      "3 EL Naturjoghurt",
-                      "3 EL Kokosöl",
-                      "Salz, schwarzer Pfeffer"
-                    ],
-                    steps: [
-                      "Reis waschen und 30 Min. in kaltem Wasser einweichen. Safran in kochendem Wasser ziehen lassen.",
-                      "Reis in Salzwasser ca. 8 Min. al dente garen, dann abgießen.",
-                      "Reis mit Safranwasser, Datteln, Nüssen, Salz und Pfeffer mischen.",
-                      "500g der Mischung mit Joghurt verrühren. Kokosöl in Pfanne erhitzen und Joghurt-Reis am Boden verteilen.",
-                      "Restlichen Reis bergförmig darauf geben (Rand frei lassen). Löcher in den Reisberg stechen.",
-                      "15-20 Min. geschlossen braten, bis sich eine Kruste (Tahdig) bildet. Auf einen Teller stürzen."
-                    ]
-                  },
-                  {
-                    id: 'h3',
-                    title: "Auberginengemüse",
-                    subtitle: "Mit Kichererbsen & Tomaten",
-                    image: "arabische_naechte/Auberginengemüse.jpg",
-                    prepTime: "30 Min.",
-                    servings: "4",
-                    ingredients: [
-                      "600 g Auberginen (gewürfelt)",
-                      "100 g Zwiebeln (gewürfelt)",
-                      "400 g stückige Tomaten",
-                      "1 Glas Kichererbsen (240 g)",
-                      "2 Zehen Knoblauch",
-                      "½ Bund Minze, ½ Bund Koriander",
-                      "2 EL Zitronensaft, 3 EL Olivenöl",
-                      "Gewürze: Kreuzkümmel, Kardamom, Salz, Pfeffer"
-                    ],
-                    steps: [
-                      "Zwiebeln und Auberginen in Olivenöl ca. 5 Min. kräftig anbraten.",
-                      "Tomaten und Kichererbsen zufügen, aufkochen und 5 Min. köcheln lassen.",
-                      "Knoblauch pressen und dazugeben, weitere 10 Min. köcheln.",
-                      "Mit Gewürzen und Zitronensaft abschmecken.",
-                      "Gehackte Kräuter unterheben und servieren."
-                    ]
-                  },
-                  {
-                    id: 'h4',
-                    title: "Zitronen-Joghurt-Dip",
-                    subtitle: "Extra frisch",
-                    image: "arabische_naechte/Frischer Zitronen-Joghurt-Dip.jpg",
-                    prepTime: "10 Min.",
-                    servings: "4",
-                    ingredients: [
-                      "400 g Griechischer Joghurt",
-                      "Schale von 2 Bio-Zitronen",
-                      "Saft von 1/2 Zitrone",
-                      "Eine Prise Salz",
-                      "Optional: Prise Zucker oder Honig"
-                    ],
-                    steps: [
-                      "Zitronen heiß waschen und Schale fein abreiben (nur das Gelbe).",
-                      "Saft einer Hälfte auspressen.",
-                      "Joghurt mit Abrieb, Saft und Salz verrühren.",
-                      "Abschmecken und bei Bedarf mit etwas Süße die Säure ausbalancieren."
-                    ]
-                  }
+                    {
+                        id: 'h1',
+                        title: "Baharat-Hähnchen",
+                        subtitle: "Orientalische Hähnchenschenkel",
+                        image: "arabische_naechte/Baharat Hähnchen.jpg",
+                        prepTime: "90 Min.",
+                        servings: "4",
+                        ingredients: [
+                            "4 Hähnchenschenkel",
+                            "3 Knoblauchzehen",
+                            "2 EL Baharat N°719",
+                            "2 EL Olivenöl",
+                            "1,5 TL Honig",
+                            "3 rote Zwiebeln",
+                            "1,5 Zitronen",
+                            "Zum Garnieren: Petersilie, Minze"
+                        ],
+                        steps: [
+                            "Knoblauch pressen und mit Salz, Baharat, Olivenöl und Honig zur Paste verrühren.",
+                            "Hähnchen damit einreiben und mind. 30 Min. ziehen lassen. Ofen auf 200°C vorheizen.",
+                            "Zwiebeln achteln, Zitronen in Spalten schneiden.",
+                            "Alles in eine Form geben, etwas Öl und 200ml Wasser angießen. Mit Backpapier abdecken.",
+                            "30 Min. mit Papier backen, dann Papier entfernen und weitere 30 Min. knusprig backen."
+                        ]
+                    },
+                    {
+                        id: 'h2',
+                        title: "Persischer Reis",
+                        subtitle: "Mit Safran und Tahdig-Kruste",
+                        image: "arabische_naechte/persischer Reis.jpg",
+                        prepTime: "60 Min.",
+                        servings: "4",
+                        ingredients: [
+                            "300 g Basmatireis",
+                            "15 Safranfäden (in 100ml heißem Wasser gelöst)",
+                            "80 g Datteln (in Ringen)",
+                            "40 g Walnüsse/Mandeln (gehackt)",
+                            "3 EL Naturjoghurt",
+                            "3 EL Kokosöl",
+                            "Salz, schwarzer Pfeffer"
+                        ],
+                        steps: [
+                            "Reis waschen und 30 Min. in kaltem Wasser einweichen. Safran in kochendem Wasser ziehen lassen.",
+                            "Reis in Salzwasser ca. 8 Min. al dente garen, dann abgießen.",
+                            "Reis mit Safranwasser, Datteln, Nüssen, Salz und Pfeffer mischen.",
+                            "500g der Mischung mit Joghurt verrühren. Kokosöl in Pfanne erhitzen und Joghurt-Reis am Boden verteilen.",
+                            "Restlichen Reis bergförmig darauf geben (Rand frei lassen). Löcher in den Reisberg stechen.",
+                            "15-20 Min. geschlossen braten, bis sich eine Kruste (Tahdig) bildet. Danach alles auf einen Teller stürzen."
+                        ]
+                    },
+                    {
+                        id: 'h3',
+                        title: "Auberginengemüse",
+                        subtitle: "Mit Kichererbsen & Tomaten",
+                        image: "arabische_naechte/Auberginengemüse.jpg",
+                        prepTime: "30 Min.",
+                        servings: "4",
+                        ingredients: [
+                            "600 g Auberginen (gewürfelt)",
+                            "100 g Zwiebeln (gewürfelt)",
+                            "400 g stückige Tomaten",
+                            "1 Glas Kichererbsen (240 g)",
+                            "2 Zehen Knoblauch",
+                            "½ Bund Minze",
+                            "½ Bund Koriander",
+                            "2 EL Zitronensaft", 
+                            "3 EL Olivenöl",
+                            "Gewürze: Kreuzkümmel, Kardamom, Salz, Pfeffer"
+                        ],
+                        steps: [
+                            "Zwiebeln und Auberginen in Olivenöl ca. 5 Min. kräftig anbraten.",
+                            "Tomaten und Kichererbsen zufügen, aufkochen und 5 Min. köcheln lassen.",
+                            "Knoblauch pressen und dazugeben, weitere 10 Min. köcheln.",
+                            "Mit Gewürzen und Zitronensaft abschmecken.",
+                            "Gehackte Kräuter unterheben und servieren."
+                        ]
+                    },
+                    {
+                        id: 'h4',
+                        title: "Zitronen-Joghurt-Dip",
+                        subtitle: "Extra frisch",
+                        image: "arabische_naechte/Frischer Zitronen-Joghurt-Dip.jpg",
+                        prepTime: "10 Min.",
+                        servings: "4",
+                        ingredients: [
+                            "400 g Griechischer Joghurt",
+                            "Schale von 2 Bio-Zitronen",
+                            "Saft von 1/2 Zitrone",
+                            "Eine Prise Salz",
+                            "Optional: Prise Zucker oder Honig"
+                        ],
+                        steps: [
+                            "Zitronen heiß waschen und Schale fein abreiben (nur das Gelbe).",
+                            "Saft einer Hälfte auspressen.",
+                            "Joghurt mit Abrieb, Saft und Salz verrühren.",
+                            "Abschmecken und bei Bedarf mit etwas Süße die Säure ausbalancieren."
+                        ]
+                    }
                 ],
                 nachtisch: [
-                  {
-                    id: 'n1',
-                    title: "Baklava",
-                    subtitle: "Mit Walnüssen und Sirup",
-                    image: "arabische_naechte/Baklava Rezept.jpg",
-                    prepTime: "60 Min.",
-                    servings: "1 Blech",
-                    ingredients: [
-                      "400-470 g Filo-/Baklavateig",
-                      "230 g Butter (geschmolzen)",
-                      "200 g Walnüsse (gemahlen)",
-                      "1 TL Zimt",
-                      "Sirup: 200 g Zucker, 300 ml Wasser, Spritzer Zitronensaft"
-                    ],
-                    steps: [
-                      "Walnüsse mahlen und mit Zimt mischen. Teig zuschneiden.",
-                      "Form buttern. Immer 2 Teigblätter legen, dann mit Butter bestreichen. Wiederholen bis Hälfte des Teigs verbraucht ist.",
-                      "Nussfüllung gleichmäßig verteilen.",
-                      "Restliche Teigblätter schichten (2 Blätter, Butter...), Abschluss mit Butter/Ghee.",
-                      "In Rauten schneiden (nur obere Schichten einschneiden).",
-                      "Bei 150°C (O/U) ca. 40-45 Min. goldbraun backen.",
-                      "Sirup 1 Min. sprudelnd kochen, lauwarm über das heiße Baklava gießen."
-                    ]
-                  },
-                  {
-                    id: 'n2',
-                    title: "Hariseh",
-                    subtitle: "Arabischer Grießkuchen",
-                    image: "arabische_naechte/Grieskuchen.jpeg",
-                    prepTime: "45 Min.",
-                    servings: "1 Form",
-                    ingredients: [
-                      "350 g Hartweizengrieß",
-                      "130 g Butter (geschmolzen), 70 g Zucker",
-                      "300 g Joghurt",
-                      "1 Pck Backpulver, 80 g Kokosraspeln",
-                      "Mandeln zum Verzieren, Tahini für die Form",
-                      "Sirup: 200g Zucker, 300ml Wasser, 2 EL Orangenblütenwasser, Zitronensaft"
-                    ],
-                    steps: [
-                      "Ofen auf 180°C vorheizen, Form mit Tahini bestreichen.",
-                      "Trockene Zutaten mischen. Joghurt und geschmolzene Butter unterrühren.",
-                      "Teig in Form glatt streichen, Muster einritzen und mit Mandeln belegen.",
-                      "Ca. 35 Min. backen.",
-                      "Sirup 10 Min. köcheln bis leicht dickflüssig, Orangenblütenwasser zufügen.",
-                      "Lauwarmen Sirup über den heißen Kuchen gießen und ziehen lassen."
-                    ]
-                  }
+                    {
+                        id: 'n1',
+                        title: "Baklava",
+                        subtitle: "Mit Pistazien und Sirup",
+                        image: "arabische_naechte/Baklava Rezept.jpg",
+                        prepTime: "60 Min.",
+                        servings: "1 Blech",
+                        ingredients: [
+                            "400-470 g Filo-/Baklavateig",
+                            "230 g Butter (geschmolzen)",
+                            "200 g Pistazien (gemahlen)",
+                            "Sirup: 200 g Zucker, 300 ml Wasser, Spritzer Zitronensaft"
+                        ],
+                        steps: [
+                            "Pistatien mahlen und Teig zuschneiden.",
+                            "Form buttern. Immer 2 Teigblätter legen, dann mit Butter bestreichen. Wiederholen bis Hälfte des Teigs verbraucht ist.",
+                            "Nussfüllung gleichmäßig verteilen.",
+                            "Restliche Teigblätter schichten (2 Blätter, Butter...), Abschluss mit Butter/Ghee.",
+                            "In Rauten schneiden (nur obere Schichten einschneiden).",
+                            "Bei 150°C (O/U) ca. 40-45 Min. goldbraun backen.",
+                            "Sirup 1 Min. sprudelnd kochen, lauwarm über das heiße Baklava gießen."
+                        ]
+                    },
+                    {
+                        id: 'n2',
+                        title: "Hariseh",
+                        subtitle: "Arabischer Grießkuchen",
+                        image: "arabische_naechte/Grieskuchen.jpeg",
+                        prepTime: "45 Min.",
+                        servings: "1 Form",
+                        ingredients: [
+                            "350 g Hartweizengrieß",
+                            "130 g Butter (geschmolzen)", 
+                            "70 g Zucker",
+                            "300 g Joghurt",
+                            "1 Pck Backpulver", 
+                            "80 g Kokosraspeln",
+                            "Mandeln zum Verzieren", 
+                            "Tahini für die Form",
+                            "Sirup: 200g Zucker, 300ml Wasser, 2 EL Orangenblütenwasser, Zitronensaft"
+                        ],
+                        steps: [
+                            "Ofen auf 180°C vorheizen, Form mit Tahini bestreichen.",
+                            "Trockene Zutaten mischen. Joghurt und geschmolzene Butter unterrühren.",
+                            "Teig in Form glatt streichen, Muster einritzen und mit Mandeln belegen.",
+                            "Ca. 35 Min. backen.",
+                            "Sirup 10 Min. köcheln bis leicht dickflüssig, Orangenblütenwasser zufügen.",
+                            "Lauwarmen Sirup über den heißen Kuchen gießen und ziehen lassen."
+                        ]
+                    }
                 ]
-              }
-            }
-          ];
+            };
 
-          const currentEvent = events[activeEvent];
-          const recipes = currentEvent.menu[activeCourse];
+            const activeRecipes = recipesData[activeCourse];
 
-          return (
-            <div style={styles.container}>
-              {/* Header */}
-              <header style={styles.header}>
-                <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'hidden', opacity: 0.2, pointerEvents: 'none'}}>
-                   <Star style={{position: 'absolute', top: '40px', left: '40px', width: '32px', height: '32px', color: 'white', animation: 'pulse 2s infinite'}} />
-                   <Star style={{position: 'absolute', top: '80px', right: '80px', width: '24px', height: '24px', color: 'white', animation: 'pulse 2s infinite', animationDelay: '0.5s'}} />
-                   <Moon style={{position: 'absolute', bottom: '40px', right: '40px', width: '64px', height: '64px', opacity: 0.5, color: 'white'}} />
-                </div>
-                <div style={styles.headerContent}>
-                  <div style={styles.badge}>
-                    <ChefHat style={{width: '40px', height: '40px', color: '#fbbf24'}} />
-                    <span>Unsere Kochrunde</span>
-                  </div>
-                  <h1 style={styles.title}>{currentEvent.title}</h1>
-                  <p style={styles.description}>{currentEvent.description}</p>
-                </div>
-              </header>
-
-              {/* Navigation */}
-              <div style={styles.navBar}>
-                <div style={styles.navContainer}>
-                  {['vorspeise', 'hauptgang', 'nachtisch'].map((course) => (
-                    <button key={course} onClick={() => setActiveCourse(course)} style={styles.navButton(activeCourse === course)}>
-                      {course === 'vorspeise' && <Utensils size={18}/>}
-                      {course === 'hauptgang' && <Users size={18}/>}
-                      {course === 'nachtisch' && <Heart size={18}/>}
-                      {course}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Main */}
-              <main style={styles.main}>
-                {recipes.length > 0 ? (
-                  <div style={styles.responsiveGrid}>
-                    {recipes.map((recipe) => (
-                      recipe.type === 'note' ? (
-                        <div key={recipe.id} style={{...styles.card, ...styles.noteCard}}>
-                          <div style={{fontSize: '3rem', marginBottom: '1rem'}}>{recipe.icon}</div>
-                          <h3 style={{...styles.cardTitle, color: '#78350f', marginBottom: '0.5rem'}}>{recipe.title}</h3>
-                          <p style={{fontStyle: 'italic', lineHeight: 1.6}}>{recipe.description}</p>
+            return (
+                <div>
+                    {/* Header */}
+                    <header>
+                        <div style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none'}}>
+                           <Icons.Star style={{position: 'absolute', top: '10%', left: '5%', width: '20px', color: '#fbbf24', animation: 'pulse 3s infinite'}} />
+                           <Icons.Star style={{position: 'absolute', top: '20%', right: '10%', width: '15px', color: '#fbbf24', animation: 'pulse 4s infinite'}} />
+                           <Icons.Moon style={{position: 'absolute', bottom: '10%', right: '5%', width: '80px', height: '80px', opacity: 0.2, color: 'white'}} />
                         </div>
-                      ) : (
-                        <div key={recipe.id} onClick={() => setSelectedRecipe(recipe)} style={styles.card} 
-                             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} 
-                             onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}>
-                          <div style={styles.cardImageContainer}>
-                            <img src={recipe.image} alt={recipe.title} style={styles.cardImage} 
-                                 onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/e2e8f0/475569?text=Bild+im+Ordner"; }} />
-                            <div style={styles.cardOverlay} />
-                            <div style={{position: 'absolute', bottom: '1rem', left: '1rem', color: 'white'}}>
-                              <h3 style={styles.cardTitle}>{recipe.title}</h3>
-                              <p style={styles.cardSubtitle}>{recipe.subtitle}</p>
+                        <div className="header-content">
+                            <div className="badge">
+                                <Icons.ChefHat size={18} /> Unsere Kochrunde
                             </div>
-                          </div>
-                          <div style={styles.cardContent}>
-                            <div style={styles.cardMeta}>
-                              <div style={styles.metaItem}><Clock size={16} /> {recipe.prepTime}</div>
-                              <div style={styles.metaItem}><Users size={16} /> {recipe.servings}</div>
-                            </div>
-                            <button style={styles.button}><BookOpen size={16} /> Rezept ansehen</button>
-                          </div>
+                            <h1>Arabische Nächte</h1>
+                            <p className="description">Eine kulinarische Reise in den Orient mit Mezze, Gewürzen und süßen Träumen.</p>
                         </div>
-                      )
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '5rem 0', color: '#94a3b8'}}>
-                    <div style={{backgroundColor: '#f1f5f9', padding: '1.5rem', borderRadius: '50%', marginBottom: '1rem'}}><Utensils size={48} style={{opacity: 0.5}} /></div>
-                    <h3 style={{fontSize: '1.25rem', fontWeight: 500, marginBottom: '0.5rem'}}>Noch keine Rezepte</h3>
-                  </div>
-                )}
-              </main>
+                    </header>
 
-              {/* Footer */}
-              <footer style={styles.footer}>
-                <p style={{fontFamily: 'serif', fontStyle: 'italic', fontSize: '1.125rem', marginBottom: '0.5rem'}}>"Essen ist ein Bedürfnis, Genießen ist eine Kunst."</p>
-                <div style={{display: 'flex', justifyContent: 'center', gap: '0.5rem', fontSize: '0.875rem', opacity: 0.6}}><span>&copy; {new Date().getFullYear()} Unsere Kochrunde</span><span>•</span><span>Arabische Nächte</span></div>
-              </footer>
-
-              {/* Modal */}
-              {selectedRecipe && (
-                <div style={styles.modalOverlay} onClick={() => setSelectedRecipe(null)}>
-                  <div style={styles.modal} onClick={e => e.stopPropagation()}>
-                    <div style={styles.modalHeaderImage}>
-                      <img src={selectedRecipe.image} alt={selectedRecipe.title} style={{width: '100%', height: '100%', objectFit: 'cover'}} 
-                           onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x400/e2e8f0/475569?text=Bild+fehlt"; }} />
-                      <button onClick={() => setSelectedRecipe(null)} style={styles.closeButton}><X size={24} color="#1e293b" /></button>
-                      <div style={{position: 'absolute', bottom: 0, left: 0, width: '100%', background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.3), transparent)', padding: '2rem', color: 'white'}}>
-                        <h2 style={{fontSize: '2.25rem', fontWeight: 'bold', fontFamily: 'serif', marginBottom: '0.25rem', lineHeight: 1.2}}>{selectedRecipe.title}</h2>
-                        <p style={{fontSize: '1.125rem', opacity: 0.9}}>{selectedRecipe.subtitle}</p>
-                      </div>
-                    </div>
-                    <div style={styles.modalBody}>
-                      <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
-                        <div style={styles.ingredientsBox}>
-                          <h3 style={{fontSize: '1.25rem', fontWeight: 'bold', fontFamily: 'serif', color: '#78350f', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}><Utensils size={20} /> Zutaten</h3>
-                          <ul style={{listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
-                            {selectedRecipe.ingredients.map((ing, i) => (
-                              <li key={i} style={{display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: '#334155', lineHeight: 1.4}}>
-                                <span style={{width: '0.375rem', height: '0.375rem', borderRadius: '50%', backgroundColor: '#fbbf24', marginTop: '0.5rem', flexShrink: 0}} />
-                                <span>{ing}</span>
-                              </li>
+                    {/* Navigation */}
+                    <nav className="nav-bar">
+                        <div className="nav-container">
+                            {['vorspeise', 'hauptgang', 'nachtisch'].map((course) => (
+                                <button 
+                                    key={course} 
+                                    onClick={() => setActiveCourse(course)} 
+                                    className={`nav-btn ${activeCourse === course ? 'active' : ''}`}
+                                >
+                                    {course === 'vorspeise' && <Icons.Utensils size={18}/>}
+                                    {course === 'hauptgang' && <Icons.Users size={18}/>}
+                                    {course === 'nachtisch' && <Icons.Heart size={18}/>}
+                                    <span style={{textTransform: 'capitalize'}}>{course}</span>
+                                </button>
                             ))}
-                          </ul>
                         </div>
-                      </div>
-                      <div>
-                        <h3 style={{fontSize: '1.25rem', fontWeight: 'bold', fontFamily: 'serif', color: '#1e293b', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}><ChefHat size={20} color="#d97706" /> Zubereitung</h3>
-                        <div style={{display: 'flex', flexDirection: 'column', gap: '0'}}>
-                          {selectedRecipe.steps.map((step, i) => (
-                            <div key={i} style={styles.stepItem}>
-                              <div style={styles.stepNumber}>{i + 1}</div>
-                              <p style={styles.stepText}>{step}</p>
+                    </nav>
+
+                    {/* Main Content */}
+                    <main>
+                        <div className="recipe-grid">
+                            {activeRecipes.map((recipe) => (
+                                recipe.type === 'note' ? (
+                                    <div key={recipe.id} className="card note-card">
+                                        <div style={{fontSize: '3rem', marginBottom: '0.5rem'}}>{recipe.icon}</div>
+                                        <h3 className="card-title" style={{marginBottom:'0.5rem'}}>{recipe.title}</h3>
+                                        <p style={{fontStyle: 'italic', lineHeight: 1.5}}>{recipe.description}</p>
+                                    </div>
+                                ) : (
+                                    <div key={recipe.id} className="card" onClick={() => setSelectedRecipe(recipe)}>
+                                        <div className="card-img-wrapper">
+                                            <img 
+                                                src={recipe.image} 
+                                                alt={recipe.title} 
+                                                className="card-img"
+                                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/e2e8f0/475569?text=Bild+fehlt"; }} 
+                                            />
+                                        </div>
+                                        <div className="card-content">
+                                            <h3 className="card-title">{recipe.title}</h3>
+                                            <p className="card-subtitle">{recipe.subtitle}</p>
+                                            
+                                            <div className="card-meta">
+                                                <span style={{display:'flex', gap:'4px', alignItems:'center'}}><Icons.Clock size={14}/> {recipe.prepTime}</span>
+                                                <span style={{display:'flex', gap:'4px', alignItems:'center'}}><Icons.Users size={14}/> {recipe.servings}</span>
+                                            </div>
+                                            <button className="btn-view">
+                                                <Icons.BookOpen size={16} /> Rezept ansehen
+                                            </button>
+                                        </div>
+                                    </div>
+                                )
+                            ))}
+                        </div>
+                    </main>
+
+                    {/* Footer */}
+                    <footer style={{background: '#0f172a', color: '#94a3b8', padding: '3rem 1rem', textAlign: 'center'}}>
+                        <p style={{fontFamily: 'Amiri, serif', fontSize: '1.2rem', color: '#d97706'}}>"Essen ist ein Bedürfnis, Genießen ist eine Kunst."</p>
+                        <div style={{fontSize: '0.8rem', opacity: 0.5, marginTop: '1rem'}}>&copy; 2024 Arabische Nächte Kochrunde</div>
+                    </footer>
+
+                    {/* Modal */}
+                    {selectedRecipe && (
+                        <div className="modal-overlay" onClick={() => setSelectedRecipe(null)}>
+                            <div className="modal" onClick={e => e.stopPropagation()}>
+                                <button onClick={() => setSelectedRecipe(null)} className="close-btn"><Icons.X size={24} /></button>
+                                
+                                <div style={{position: 'relative'}}>
+                                    <img 
+                                        src={selectedRecipe.image} 
+                                        className="modal-header-img"
+                                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x400/e2e8f0/475569?text=Bild+fehlt"; }}
+                                    />
+                                    <div style={{position: 'absolute', bottom: 0, left: 0, right: 0, padding: '2rem', background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', color: 'white'}}>
+                                        <h2 style={{color: 'white', marginBottom: '0'}}>{selectedRecipe.title}</h2>
+                                        <p style={{margin: 0, opacity: 0.9}}>{selectedRecipe.subtitle}</p>
+                                    </div>
+                                </div>
+
+                                <div className="modal-content">
+                                    {/* Linke Spalte: Zutaten */}
+                                    <div>
+                                        <div className="ingredients-box">
+                                            <h3 style={{marginTop: 0, display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#92400e'}}>
+                                                <Icons.Utensils size={20}/> Zutaten
+                                            </h3>
+                                            <ul style={{paddingLeft: '1.2rem', lineHeight: '1.6'}}>
+                                                {selectedRecipe.ingredients.map((ing, i) => (
+                                                    <li key={i}>{ing}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    {/* Rechte Spalte: Zubereitung */}
+                                    <div>
+                                        <h3 style={{marginTop: 0, display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#1e1b4b'}}>
+                                            <Icons.ChefHat size={20}/> Zubereitung
+                                        </h3>
+                                        <div>
+                                            {selectedRecipe.steps.map((step, i) => (
+                                                <div key={i} className="step-item">
+                                                    <div className="step-num">{i + 1}</div>
+                                                    <p className="step-text">{step}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                          ))}
                         </div>
-                      </div>
-                    </div>
-                  </div>
+                    )}
                 </div>
-              )}
-            </div>
-          );
+            );
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
